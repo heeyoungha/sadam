@@ -1,0 +1,7 @@
+.thumbnail span {
+    display: block;
+    position: relative;
+    width: 36px;
+    height: 36px;
+    background-image: url("../images/img_user.png");
+}

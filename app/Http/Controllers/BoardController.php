@@ -83,8 +83,28 @@ class BoardController extends Controller
         }
         
     }
-    public function show(){
-        return "hi";
+    public function show($board_id, Request $request){
+
+        try{
+            $user = Auth::user();
+            
+            $board = Board::find($board_id);//dd($board) -> 객체 출력됨
+            $board->increment('view_cnt');
+            $photoUrl = User::find($board->user_id)->photoUrl ?? ''; //dd($photoUrl) -> ""출력됨
+            //$baord->user_thumbnail = $photoUrl;//Attempt to assign property 'user_thumbnail' on null" 오류 출력됨
+            $board->user_name = User::find($board->user_id)->name;
+
+            return view('board.show', compact('board','user'));
+
+        }catch (\Exception $e){
+
+            return response([
+                'status' => 'error',
+                'message' => '에러가 발생했습니다',
+                'error' => $e->getMessage()
+            ]);
+        }
+        
         
     }
     public function update(){

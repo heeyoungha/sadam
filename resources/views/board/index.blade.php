@@ -58,7 +58,7 @@
                     <tr>
                         <td></td>
                         <td>
-                            <a href="/board/show/{{ $item['id'] }}">
+                            <a href="/board/{{ $item['id'] }}">
                                 <p>{{ $item['title'] }}</p>
                                 <span></span>
                             </a>
