@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BoardController;
+use App\Http\Controllers\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +18,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/board', function () {
+    return "hello";
+});
+
+//OAuth 공급자로 리다이렉션
+Route::get('/auth/redirect', [LoginController::class,'redirectToProvider']);
+
+//공급자로부터 콜백을 수신
+Route::get('/auth/github/callback', [LoginController::class,'handleProviderCallback']);
