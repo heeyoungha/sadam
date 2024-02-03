@@ -14,6 +14,7 @@
         <a href="{{route('board_index')}}" class="text-xl">게시판</a>
     </header>
 @show
+<h3>안녕하세요 {{$user->name}} 님</h3>
 
 @section('section')
 @show

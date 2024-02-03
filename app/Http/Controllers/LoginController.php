@@ -28,11 +28,11 @@ class LoginController extends Controller
         // OAuth 1.0 providers...
         $token = $user->token;
         $tokenSecret = $user->tokenSecret;
-    
+        
+        
         // All providers...
         $user->getId();
         $user->getNickname();
-        $user->getName();
         $user->getEmail();
         $user->getAvatar();
 
@@ -40,8 +40,10 @@ class LoginController extends Controller
         $socialiteUser = Socialite::driver('github')->user();
 
         // Laravel 사용자 모델에 저장
-        $user = $this->findOrCreateUser($socialiteUser);
 
+        $user = $this->findOrCreateUser($socialiteUser);
+        $user->name = $socialiteUser->nickname;
+        $user->save();
         // 사용자를 로그인
         Auth::login($user);
 
