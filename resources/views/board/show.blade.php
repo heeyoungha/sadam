@@ -20,7 +20,11 @@
     </button>
     <div>
         <button>신고하기</button>
-        <button>삭제하기</button>
+        <form action="/board/{{ $board->id }}" method="post">
+            @csrf
+            @method('DELETE')
+            <button type="submit">삭제하기</button>
+        </form>
         <button>
             <span>더보기 팝업 닫기</span>
         </button>

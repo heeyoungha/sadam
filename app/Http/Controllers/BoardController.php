@@ -110,7 +110,26 @@ class BoardController extends Controller
     public function update(){
         
     }
-    public function destroy(){
+    public function destroy($board_id){
+
+        try{
+            
+            DB::beginTransaction();
+            $board = Board::find($board_id);
+            $board->delete();
+            DB::commit();
+
+            return redirect() -> route('board_index');
+        
+        }catch(\Exception $e){
+
+            DB::rollback();
+            return response([
+                'status' => 'error',
+                'message' => '에러가 발생했습니다',
+                'error' => $e->getMessage()
+            ]);
+        }
 
         
     }
