@@ -8,20 +8,20 @@
     </section>
     <form action="{{ route('board_index') }}" method="GET" id="search_form">
         <div>
-            <select>
+            <select name="filter">
                 <option value="titleContent" @if ($selectValue === "titleContent") selected @endif>제목 + 내용</option>
-                <option value="titleContent" @if ($selectValue === "titleContent") selected @endif>내용</option>
-                <option value="titleContent" @if ($selectValue === "titleContent") selected @endif>작성자</option>
+                <option value="content" @if ($selectValue === "content") selected @endif>내용</option>
+                <option value="actor" @if ($selectValue === "actor") selected @endif>작성자</option>
             </select>
             <div>
                 <input 
                     type="text"
-                    id="searchTitle"
-                    name=""
+                    id=""
+                    name="searchTitle"
                     placeholder="검색어를 입력하세요"
                     value="{{ $searchTitle }}"    
                     />
-                <button>
+                <button type="submit">
                     <span>검색</span>
                 </button>
             </div>

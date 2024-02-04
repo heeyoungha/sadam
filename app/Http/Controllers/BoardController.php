@@ -23,26 +23,27 @@ class BoardController extends Controller
         $table_data = Board::leftJoin('users as u', 'boards.user_id','=','u.id')
         ->select('boards.*','u.id as u_id','u.name as uname')
         ->orderBy('boards.created_at','desc');
-
+        // dd($request->filter);
         if($searchTitle){
             switch($request->filter){
-                case 'titleContents':
+                case 'titleContent':
                     $table_data = $table_data
-                        ->where('boards.content', 'like','%',$searchTitle.'%')
-                        ->orwhere('boards.title', 'like','%',$searchTitle.'%');
+                        ->where('boards.content', 'like','%'.$searchTitle.'%')
+                        ->orwhere('boards.title', 'like','%'.$searchTitle.'%');
                     break;
-                case 'titleContents':
+                case 'content':
                     $table_data = $table_data
-                        ->where('boards.content', 'like','%',$searchTitle.'%');
+                        ->where('boards.content', 'like','%'.$searchTitle.'%');
                     break;
-                case 'titleContents':
+                case 'actor':
                     $table_data = $table_data
-                        ->where('boards.content', 'like','%',$searchTitle.'%');
+                        ->where('u.name', 'like','%'.$searchTitle.'%');
                     break;
             }
         }
 
         $table_data = $table_data->get();
+        // dd($table_data);
         $filteredCollection = collect($table_data);
         $filteredArray = $filteredCollection->all();
         $countCollection = count($filteredCollection);
