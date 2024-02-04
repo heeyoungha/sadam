@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('user_id');
             $table->integer('board_id');
             $table->string('content');
+            $table->string('reply_user_name');
             $table->timestamps();
         });
     }

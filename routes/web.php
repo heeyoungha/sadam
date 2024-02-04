@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\LoginController;
 
 /*
@@ -25,6 +26,10 @@ Route::post('/board', [BoardController::class,'store'])->name('board_store');
 Route::get('/board/{board_id}', [BoardController::class,'show'])->name('board_show');
 Route::put('/board/{board_id}', [BoardController::class,'update'])->name('board_update');
 Route::delete('/board/{board_id}', [BoardController::class,'destroy'])->name('board_destroy');
+
+//댓글
+Route::post('/board/{board_id}/reply', [ReplyController::class,'store'])->name('replys_store');
+
 
 //OAuth 공급자로 리다이렉션
 Route::get('/auth/redirect', [LoginController::class,'redirectToProvider']);

@@ -44,9 +44,75 @@
     </button>
 </div>
 <!-- 댓글 -->
-<!-- 댓글 목록 -->
-<!-- 댓글 내용 -->
+<div>
+    <h4><span>{{ $replyCount }}</span>댓글</h4>
+    <!-- 댓글 목록 -->
+    <div>
+        <ul>
+            @foreach ($replies as $index => $item)
+            <li>
+                <!-- 댓글 내용 -->
+                <div>
+                    <div>
+                        <span
+                            style="background-image: url('<?php echo isset($item->user_thumbnail) ? 
+                                        $item->user_thumbnail : 
+                                        '../asset/images/img_user.png'; ?>')"    
+                        ></span>
+                    </div>
+                    <div>
+                        <div>
+                            <p>{{ $item['user_name'] }}</p>
+                            <p>{{ $item['created_at'] }}</p>
+                            <div id="reply" data-idx="{{ $item->id }}"></div>
+                            <button>
+                                <span>좋아요</span>
+                                <span></span>
+                            </button>
+                            <button>
+                                <span>싫어요</span>
+                                <span>싫어요</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <p>{{ $item['content'] }}</p>
+                    </div>
+                </div>
+            </li>
+            @endforeach
+        </ul>
+    </div>
+</div>
 <!-- 댓글 작성 -->
+<form method="post" action="{{ route('replys_store',['board_id' => $board->id]) }}" onsubmit="return validateForm()">
+    @csrf
+    <div>
+        <div>
+            <textarea
+                name="content"
+                id="content"
+                cols="30"
+                rows="10"
+                placeholder=""
+            ></textarea>
+        </div>
+        <button>댓글달기</button>
+    </div>
+</form>
 <!-- 이전글/다음글 -->
 <!-- 목록으로 -->
+
+<script>
+    function validateForm(){
+        var content = document.getElementById('content').value;
+
+        if(content.trim() === ''){
+            alert('dd');
+            return false;
+        }
+        return true;
+    }
+</script>
+
 @stop

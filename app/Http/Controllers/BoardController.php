@@ -88,13 +88,23 @@ class BoardController extends Controller
         try{
             $user = Auth::user();
             
+            //게시판 출력
             $board = Board::find($board_id);//dd($board) -> 객체 출력됨
             $board->increment('view_cnt');
             $photoUrl = User::find($board->user_id)->photoUrl ?? ''; //dd($photoUrl) -> ""출력됨
             //$baord->user_thumbnail = $photoUrl;//Attempt to assign property 'user_thumbnail' on null" 오류 출력됨
             $board->user_name = User::find($board->user_id)->name;
 
-            return view('board.show', compact('board','user'));
+            //댓글 출력
+            $replies = $board->replies()->get();
+            foreach($replies as $reply){
+                $reply->user_name= User::find($reply->user_id)->name;
+                $reply->user_thumbnail = User::find($reply->user_id)->photoUrl;
+            }
+            $replyCount = count($replies);
+
+
+            return view('board.show', compact('board','user','replyCount','replies'));
 
         }catch (\Exception $e){
 
