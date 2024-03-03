@@ -15,7 +15,7 @@ class BoardController extends Controller
     public function index(Request $request){
 
         $user = Auth::user();
-        
+
         $perPage = 10;
         $searchTitle = $request->get('searchTitle');
         $selectValue = "";
@@ -23,7 +23,7 @@ class BoardController extends Controller
         $table_data = Board::leftJoin('users as u', 'boards.user_id','=','u.id')
         ->select('boards.*','u.id as u_id','u.name as uname')
         ->orderBy('boards.created_at','desc');
-        // dd($request->filter);
+        
         if($searchTitle){
             switch($request->filter){
                 case 'titleContent':
@@ -48,13 +48,8 @@ class BoardController extends Controller
         $filteredArray = $filteredCollection->all();
         $countCollection = count($filteredCollection);
         $newCollection = collect($filteredArray);
-        $currentPage = request()->input('page',1);
-        $currentPageItems = $newCollection->slice(($currentPage -1)*$perPage, $perPage);
-        $paginator = new LengthAwarePaginator($currentPageItems, count($newCollection), $perPage, $currentPage, [
-            'path'=> Paginator::resolveCurrentPath(),
-        ]);
 
-        return view('board.index',['paginator'=>$paginator], compact('user','searchTitle','selectValue','countCollection','currentPageItems'));
+        return view('board.index', compact('user','searchTitle','selectValue','countCollection','newCollection'));
     }
     public function create(){
         $user = Auth::user();
@@ -118,7 +113,22 @@ class BoardController extends Controller
         
         
     }
-    public function update(){
+
+    public function edit($board_id, Request $request){
+        $board = Board::find($board_id);
+        $user = Auth::user();
+
+        return view('board.edit', compact('board','user'));
+    }
+    public function update($board_id, Request $request){
+
+        $board = Board::find($board_id);
+        $board->title = $request->title;
+        $board->content = $request->content;
+        $board->save();
+        
+
+        return redirect()->route('board_show', ['board_id' => $board->id]);
         
     }
     public function destroy($board_id){

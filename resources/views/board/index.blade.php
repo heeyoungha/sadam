@@ -1,8 +1,73 @@
 @extends('layouts.app')
 
 @section('section')
-    <section class="w-2/3 mx-auto mt-8 text-green-500">
-        <div class="text-2xl">
+<style>
+        /* 게시판 스타일링 */
+        section {
+            margin: 20px 0;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        select, input {
+            padding: 8px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        div > a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+    <section>
+        <div>
             게시판
         </div>
     </section>
@@ -37,7 +102,6 @@
     <table>
         <caption></caption>
         <colgroup>
-            <col style="width: 8.333%"/>
             <col style="width: 50%"/>
             <col style="width: 11%"/>
             <col style="width: 11%"/>
@@ -45,7 +109,6 @@
             <col style="width: 10%"/>
         </colgroup>
         <thead>
-            <th>번호</th>
             <th>제목</th>
             <th>작성자</th>
             <th>작성일자</th>
@@ -54,9 +117,8 @@
         </thead>
         <tbody>
             @if ($countCollection > 0)
-                @foreach ($currentPageItems as $index => $item)
+                @foreach ($newCollection as $index => $item)
                     <tr>
-                        <td></td>
                         <td>
                             <a href="/board/{{ $item['id'] }}">
                                 <p>{{ $item['title'] }}</p>
@@ -79,7 +141,4 @@
             @endif
         </tbody>
     </table>
-    <div>
-        {!! $paginator->links('vendor.pagination.custom')->render() !!}
-    </div>
 @stop
