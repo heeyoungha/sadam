@@ -27,6 +27,7 @@ Route::get('/board/{board_id}', [BoardController::class,'show'])->name('board_sh
 Route::get('/board/edit/{board_id}', [BoardController::class,'edit'])->name('board_edit');
 Route::put('/board/{board_id}', [BoardController::class,'update'])->name('board_update');
 Route::delete('/board/{board_id}', [BoardController::class,'destroy'])->name('board_destroy');
+
 Route::post('/board/{board_id}/reaction', [BoardController::class,'boardReaction'])->name('board_boardReaction');
 
 //댓글
@@ -38,3 +39,5 @@ Route::get('/auth/redirect', [LoginController::class,'redirectToProvider'])->nam
 
 //공급자로부터 콜백을 수신
 Route::get('/auth/github/callback', [LoginController::class,'handleProviderCallback']);
+
+//커밋
