@@ -6,6 +6,7 @@ use Illuminate\support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Board;
+use App\Models\boardReaction;
 use Auth;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -87,8 +88,6 @@ class BoardController extends Controller
             //게시판 출력
             $board = Board::find($board_id);//dd($board) -> 객체 출력됨
             $board->increment('view_cnt');
-            $photoUrl = User::find($board->user_id)->photoUrl ?? ''; //dd($photoUrl) -> ""출력됨
-            //$baord->user_thumbnail = $photoUrl;//Attempt to assign property 'user_thumbnail' on null" 오류 출력됨
             $board->user_name = User::find($board->user_id)->name;
 
             //댓글 출력
@@ -99,8 +98,11 @@ class BoardController extends Controller
             }
             $replyCount = count($replies);
 
+            $boardReactions = $board->boardReactions()->get();
+            $boardReactionCnt = count($boardReactions);
 
-            return view('board.show', compact('board','user','replyCount','replies'));
+
+            return view('board.show', compact('board','user','replyCount','replies','boardReactionCnt'));
 
         }catch (\Exception $e){
 
@@ -153,5 +155,60 @@ class BoardController extends Controller
         }
 
         
+    }
+
+    public function boardReaction($board_id, Request $request){
+    
+        try {
+
+            DB::beginTransaction();
+            
+            $user = User::find($request->user_id);
+            
+            $boardReaction = BoardReaction::where('user_id', $user->id)
+                ->where('board_id', $board_id)
+                ->first();
+            
+            if ($boardReaction) {
+                switch ($boardReaction->type) {
+                    case 'like':
+                        $boardReaction->delete();
+                        break;
+                    case 'dislike':
+                        $boardReaction->update(['type' => 'like']);
+                        break;
+                }
+            } else {
+                $boardReaction = new BoardReaction();
+                $boardReaction->user_id = $user->id;
+                $boardReaction->board_id = $board_id;
+                $boardReaction->type = 'like';
+                $boardReaction->save();
+            }
+
+            $data = [
+                'likeCnt' => BoardReaction::where('board_id',$board_id)->where('type','like')->count()
+            ];
+            $data = array_map(function ($data){
+                return ($data === 0) ? '' : $data;
+            }, $data);
+
+            DB::commit();
+
+            
+    
+            return response()->json([
+                'success' => true, 
+                'data' => $data,
+                'message' => 'Board reaction updated successfully'
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false, 
+                'message' => 'An error occurred'
+            ], 500);
+        }
     }
 }

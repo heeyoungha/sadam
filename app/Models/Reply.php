@@ -16,4 +16,9 @@ class Reply extends Model
     {
         return $this->belongsTo(Board::class);
     }
+
+    public function replyReactions()
+    {
+        return $this->hasMany(replyReaction::class);
+    }
 }

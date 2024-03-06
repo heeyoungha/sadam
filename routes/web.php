@@ -27,10 +27,11 @@ Route::get('/board/{board_id}', [BoardController::class,'show'])->name('board_sh
 Route::get('/board/edit/{board_id}', [BoardController::class,'edit'])->name('board_edit');
 Route::put('/board/{board_id}', [BoardController::class,'update'])->name('board_update');
 Route::delete('/board/{board_id}', [BoardController::class,'destroy'])->name('board_destroy');
+Route::post('/board/{board_id}/reaction', [BoardController::class,'boardReaction'])->name('board_boardReaction');
 
 //댓글
+Route::post('/board/{board_id}/reply/{reply_id}/reaction', [ReplyController::class,'replyReaction'])->name('replys_replyReaction');
 Route::post('/board/{board_id}/reply', [ReplyController::class,'store'])->name('replys_store');
-
 
 //OAuth 공급자로 리다이렉션
 Route::get('/auth/redirect', [LoginController::class,'redirectToProvider'])->name('ouath');

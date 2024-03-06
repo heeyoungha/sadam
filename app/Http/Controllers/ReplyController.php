@@ -6,6 +6,7 @@ use Illuminate\support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Reply;
+use App\Models\replyReaction;
 use Auth;
 
 class ReplyController extends Controller
@@ -35,5 +36,40 @@ class ReplyController extends Controller
                 'error' => $e->getMessage()
             ]);
         }
+    }
+
+    public function replyReaction($board_id, $reply_id, Request $request){
+        
+        $user = User::find($request->user_id);
+        
+        $replyReaction = ReplyReaction::where('user_id', $user->id)
+                ->where('reply_id', $reply_id)
+                ->first();
+
+        if ($replyReaction) {
+            $replyReaction->delete();
+        } else {
+            $replyReaction = new ReplyReaction();
+            $replyReaction->user_id = $user->id;
+            $replyReaction->reply_id = $reply_id;
+            $replyReaction->board_id = $board_id;
+            $replyReaction->type = 'like';
+            $replyReaction->save();
+        }
+
+        $data = [
+            'likeCnt' => ReplyReaction::where('reply_id',$reply_id)->where('type','like')->count()
+        ];
+        $data = array_map(function ($data){
+            return ($data === 0) ? '' : $data;
+        }, $data);
+        DB::commit();
+
+        return response()->json([
+            'success' => true, 
+            'data' => $data,
+            'message' => 'Board reaction updated successfully'
+        ]);
+    
     }
 }

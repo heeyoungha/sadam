@@ -13,4 +13,8 @@ class Board extends Model
     {
         return $this->hasMany(Reply::class);
     }
+    public function boardReactions()
+    {
+        return $this->hasMany(boardReaction::class);
+    }
 }
