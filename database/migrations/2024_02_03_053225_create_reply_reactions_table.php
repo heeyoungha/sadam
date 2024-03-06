@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('reply_reactions', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->integer('board_id');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('board_id');
+            $table->unsignedBigInteger('reply_id');
             $table->enum('type',['like','bookmark']);
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('board_id')->references('id')->on('boards');
+            $table->foreign('reply_id')->references('id')->on('replies');
         });
     }
 
