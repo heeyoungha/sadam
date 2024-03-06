@@ -5,7 +5,6 @@ use Socialite;
 use Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-
 use Illuminate\Http\Request;
 
 class LoginController extends Controller
@@ -16,8 +15,8 @@ class LoginController extends Controller
 
     }
 
-    public function handleProviderCallback(){
-        $user = Socialite::driver('github')->user();
+    public function handleProviderCallback(){  
+        $user = Socialite::driver('github')->stateless()->user();
 
         //사용자 상세정보 조회
         // OAuth 2.0 providers...
