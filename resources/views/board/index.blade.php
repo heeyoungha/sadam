@@ -74,9 +74,9 @@
     <form action="{{ route('board_index') }}" method="GET" id="search_form">
         <div>
             <select name="filter">
-                <option value="titleContent" @if ($selectValue === "titleContent") selected @endif>제목 + 내용</option>
-                <option value="content" @if ($selectValue === "content") selected @endif>내용</option>
-                <option value="actor" @if ($selectValue === "actor") selected @endif>작성자</option>
+                <option value="titleContent" {{ $filter === 'titleContents' ? 'selected' : null }}>제목 + 내용</option>
+                <option value="content" {{ $filter === 'contents' ? 'selected' : null }}>내용</option>
+                <option value="actor" {{ $filter === 'actor' ? 'selected' : null }}>작성자</option>
             </select>
             <div>
                 <input 
