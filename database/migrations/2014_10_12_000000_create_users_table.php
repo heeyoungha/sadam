@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('photoUrl',500)->nullable();
             $table->rememberToken();
+            $table->integer('role_id')->default(2);
             $table->timestamps();
         });
     }

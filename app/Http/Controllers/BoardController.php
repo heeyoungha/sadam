@@ -107,7 +107,7 @@ class BoardController extends Controller
 
             //작성자와 로그인 유저가 동일한 경우 'active'값 뷰로 넘기기
             $post_user_id = User::find($board->user_id)->id;
-            if($user->id === $post_user_id){
+            if($user->id === $post_user_id || $user->role_id == 1){
                 $is_post_author = 'active';
             }else{
                 $is_post_author = '';
@@ -128,6 +128,11 @@ class BoardController extends Controller
     }
 
     public function edit($board_id, Request $request){
+        $board = Board::all();
+        if ($request->user()->cannot('update', $board)) {
+            abort(403, '죄송합니다. 글을 수정할 권한이 없습니다.');
+        }
+
         $board = Board::find($board_id);
         $user = Auth::user();
 
@@ -137,27 +142,21 @@ class BoardController extends Controller
 
         try{
 
-            if($board->user_id == $user->id){
+            $request->validate([
+                'title' => 'required|max:255',
+                'content' => 'required',
+            ]);
 
-                $request->validate([
-                    'title' => 'required|max:255',
-                    'editordata' => 'required',
-                ]);
+            DB::beginTransaction();
+            $board = Board::find($board_id);
+            $board->title = $request->title;
+            $board->content = $request->content;
+            $board->save();
+            DB::commit();
 
-                DB::beginTransaction();
-                $board = Board::find($board_id);
-                $board->title = $request->title;
-                $board->content = $request->content;
-                $board->save();
-                DB::commit();
+            return redirect()->route('board_show', ['board_id' => $board->id]);
 
-                return redirect()->route('board_show', ['board_id' => $board->id]);
-
-            }else {
-                return redirect() -> route('boards_index');
-            } 
-
-        }catch (\Exception $e){
+        } catch (\Exception $e){
 
             return response([
                 'status' => 'error',
@@ -170,7 +169,10 @@ class BoardController extends Controller
     public function destroy($board_id){
 
         try{
-            if($board->user_id == $user->id){
+
+            $user = Auth::user();
+            $board = Board::findOrFail($board_id);
+
 
                 DB::beginTransaction();
                 $board = Board::find($board_id);
@@ -178,9 +180,6 @@ class BoardController extends Controller
                 DB::commit();
 
                 return redirect() -> route('board_index');
-            } else {
-                return redirect() -> route('boards_index');
-            }
         
         }catch(\Exception $e){
 
