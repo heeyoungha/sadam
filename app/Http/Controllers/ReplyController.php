@@ -39,37 +39,46 @@ class ReplyController extends Controller
     }
 
     public function replyReaction($board_id, $reply_id, Request $request){
-        
-        $user = User::find($request->user_id);
-        
-        $replyReaction = ReplyReaction::where('user_id', $user->id)
-                ->where('reply_id', $reply_id)
-                ->first();
+        try{
+            DB::beginTransaction(); 
+            $user = User::find($request->user_id);
+            
+            $replyReaction = ReplyReaction::where('user_id', $user->id)
+                    ->where('reply_id', $reply_id)
+                    ->first();
 
-        if ($replyReaction) {
-            $replyReaction->delete();
-        } else {
-            $replyReaction = new ReplyReaction();
-            $replyReaction->user_id = $user->id;
-            $replyReaction->reply_id = $reply_id;
-            $replyReaction->board_id = $board_id;
-            $replyReaction->type = 'like';
-            $replyReaction->save();
+            if ($replyReaction) {
+                $replyReaction->delete();
+            } else {
+                $replyReaction = new ReplyReaction();
+                $replyReaction->user_id = $user->id;
+                $replyReaction->reply_id = $reply_id;
+                $replyReaction->board_id = $board_id;
+                $replyReaction->type = 'like';
+                $replyReaction->save();
+            }
+
+            $data = [
+                'likeCnt' => ReplyReaction::where('reply_id',$reply_id)->where('type','like')->count()
+            ];
+            $data = array_map(function ($data){
+                return ($data === 0) ? '' : $data;
+            }, $data);
+            DB::commit();
+
+            return response()->json([
+                'success' => true, 
+                'data' => $data,
+                'message' => 'Board reaction updated successfully'
+            ]);
+            
+        } catch (\Exception $e){
+            DB::rollback();
+            return response([
+                'status' => 'error',
+                'message' => '에러가 발생했습니다',
+                'error' => $e->getMessage()
+            ]);
         }
-
-        $data = [
-            'likeCnt' => ReplyReaction::where('reply_id',$reply_id)->where('type','like')->count()
-        ];
-        $data = array_map(function ($data){
-            return ($data === 0) ? '' : $data;
-        }, $data);
-        DB::commit();
-
-        return response()->json([
-            'success' => true, 
-            'data' => $data,
-            'message' => 'Board reaction updated successfully'
-        ]);
-    
     }
 }

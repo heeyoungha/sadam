@@ -17,14 +17,13 @@ class BoardController extends Controller
 
         $user = Auth::user();
 
-        $perPage = 10;
-        $searchTitle = $request->get('searchTitle');
-        $selectValue = "";
-
         $table_data = Board::leftJoin('users as u', 'boards.user_id','=','u.id')
         ->select('boards.*','u.id as u_id','u.name as uname')
         ->orderBy('boards.created_at','desc');
         
+        $searchTitle = $request->get('searchTitle');
+        $filter = $request->get('filter');
+
         if($searchTitle){
             switch($request->filter){
                 case 'titleContent':
@@ -44,13 +43,12 @@ class BoardController extends Controller
         }
 
         $table_data = $table_data->get();
-        // dd($table_data);
         $filteredCollection = collect($table_data);
         $filteredArray = $filteredCollection->all();
         $countCollection = count($filteredCollection);
         $newCollection = collect($filteredArray);
 
-        return view('board.index', compact('user','searchTitle','selectValue','countCollection','newCollection'));
+        return view('board.index', compact('user','searchTitle','filter','countCollection','newCollection'));
     }
     public function create(){
         $user = Auth::user();
@@ -61,6 +59,12 @@ class BoardController extends Controller
 
         $user = Auth::user();
         try{
+
+            $request->validate([
+                'title' => 'required|max:255',
+                'editordata' => 'required',
+            ]);
+
             DB::beginTransaction();
             $board = new Board;
             $board->title = $request->title;
@@ -101,8 +105,15 @@ class BoardController extends Controller
             $boardReactions = $board->boardReactions()->get();
             $boardReactionCnt = count($boardReactions);
 
+            //작성자와 로그인 유저가 동일한 경우 'active'값 뷰로 넘기기
+            $post_user_id = User::find($board->user_id)->id;
+            if($user->id === $post_user_id){
+                $is_post_author = 'active';
+            }else{
+                $is_post_author = '';
+            }
 
-            return view('board.show', compact('board','user','replyCount','replies','boardReactionCnt'));
+            return view('board.show', compact('board','user','replyCount','replies','boardReactionCnt','is_post_author'));
 
         }catch (\Exception $e){
 
@@ -124,25 +135,52 @@ class BoardController extends Controller
     }
     public function update($board_id, Request $request){
 
-        $board = Board::find($board_id);
-        $board->title = $request->title;
-        $board->content = $request->content;
-        $board->save();
-        
+        try{
 
-        return redirect()->route('board_show', ['board_id' => $board->id]);
-        
+            if($board->user_id == $user->id){
+
+                $request->validate([
+                    'title' => 'required|max:255',
+                    'editordata' => 'required',
+                ]);
+
+                DB::beginTransaction();
+                $board = Board::find($board_id);
+                $board->title = $request->title;
+                $board->content = $request->content;
+                $board->save();
+                DB::commit();
+
+                return redirect()->route('board_show', ['board_id' => $board->id]);
+
+            }else {
+                return redirect() -> route('boards_index');
+            } 
+
+        }catch (\Exception $e){
+
+            return response([
+                'status' => 'error',
+                'message' => '에러가 발생했습니다',
+                'error' => $e->getMessage()
+            ]);
+        }
+
     }
     public function destroy($board_id){
 
         try{
-            
-            DB::beginTransaction();
-            $board = Board::find($board_id);
-            $board->delete();
-            DB::commit();
+            if($board->user_id == $user->id){
 
-            return redirect() -> route('board_index');
+                DB::beginTransaction();
+                $board = Board::find($board_id);
+                $board->delete();
+                DB::commit();
+
+                return redirect() -> route('board_index');
+            } else {
+                return redirect() -> route('boards_index');
+            }
         
         }catch(\Exception $e){
 
