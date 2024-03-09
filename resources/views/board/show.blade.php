@@ -174,9 +174,13 @@
 
 <!-- 리액션 버튼 -->
 <div class="reaction-button">
+    <button id="bookmarkButton">
+        <span>북마크</span>
+        <span id="boardBookmarkCnt">{{ $boardBookmarkCnt == 0 ? '' : $boardBookmarkCnt }}</span>
+    </button>
     <button id="likeButton">
         <span>좋아요</span>
-        <span id="boardReactionCnt">{{$boardReactionCnt}}</span>
+        <span id="boardLikeCnt">{{ $boardLikeCnt == 0 ? '' : $boardLikeCnt }}</span>
     </button>
 </div>
 
@@ -225,7 +229,7 @@
 <script>
         $(document).ready(function() {
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
-        $('#likeButton').click(function() {
+        $('#bookmarkButton').click(function() {
             
             var boardId = {{$board->id}};
             var userId = {{$user->id}}
@@ -237,12 +241,13 @@
                 },
                 data: {
                     user_id: userId,
+                    type: 'bookmark'
                 },
                 success: function(response) {
-                    document.querySelector('#boardReactionCnt').innerText = response.data.likeCnt;
+                    document.querySelector('#boardBookmarkCnt').innerText = response.data.bookmarkCnt;
+                    document.querySelector('#boardLikeCnt').innerText = response.data.likeCnt;
                 },
                 error: function(error) {
-                    // 에러가 발생한 경우 처리
                     console.log('Error:', error);
                 }
             });
@@ -268,7 +273,6 @@
                     self.find(".replyReactionBtn").text(response.data.likeCnt);
                 },
                 error: function(error) {
-                    // 에러가 발생한 경우 처리
                     console.log('Error:', error);
                 }
             });

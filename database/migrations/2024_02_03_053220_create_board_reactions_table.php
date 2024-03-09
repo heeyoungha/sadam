@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('board_id');
-            $table->enum('type',['like','dislike'])->nullable();
+            $table->enum('type',['like','bookmark'])->nullable();
             $table->timestamps();
-
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('board_id')->references('id')->on('boards');
         });

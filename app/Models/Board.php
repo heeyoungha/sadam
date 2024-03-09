@@ -13,8 +13,14 @@ class Board extends Model
     {
         return $this->hasMany(Reply::class);
     }
-    public function boardReactions()
+    public function boardLikeReactions()
     {
-        return $this->hasMany(boardReaction::class);
+        return $this->hasMany(boardReaction::class)
+                ->where('type', 'like');
+    }
+    public function boardBookmarkReactions()
+    {
+        return $this->hasMany(boardReaction::class)
+                ->where('type', 'bookmark');
     }
 }

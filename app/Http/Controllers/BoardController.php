@@ -6,7 +6,7 @@ use Illuminate\support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Board;
-use App\Models\boardReaction;
+use App\Models\BoardReaction;
 use Auth;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -102,8 +102,10 @@ class BoardController extends Controller
             }
             $replyCount = count($replies);
 
-            $boardReactions = $board->boardReactions()->get();
-            $boardReactionCnt = count($boardReactions);
+            $boardLike = $board->boardLikeReactions()->get();
+            $boardLikeCnt = count($boardLike);
+            $boardBookmark = $board->boardBookmarkReactions()->get();
+            $boardBookmarkCnt = count($boardBookmark);
 
             //작성자와 로그인 유저가 동일한 경우 'active'값 뷰로 넘기기
             $post_user_id = User::find($board->user_id)->id;
@@ -113,7 +115,7 @@ class BoardController extends Controller
                 $is_post_author = '';
             }
 
-            return view('board.show', compact('board','user','replyCount','replies','boardReactionCnt','is_post_author'));
+            return view('board.show', compact('board','user','replyCount','replies','boardLikeCnt','boardBookmarkCnt','is_post_author'));
 
         }catch (\Exception $e){
 
@@ -201,38 +203,32 @@ class BoardController extends Controller
             DB::beginTransaction();
             
             $user = User::find($request->user_id);
+            $type = $request->input('type');
             
-            $boardReaction = BoardReaction::where('user_id', $user->id)
+            $existingReaction = BoardReaction::where('user_id', $user->id)
                 ->where('board_id', $board_id)
                 ->first();
             
-            if ($boardReaction) {
-                switch ($boardReaction->type) {
+            switch($type){
                     case 'like':
-                        $boardReaction->delete();
+                    $this->handleLike($existingReaction, $user, $board_id);
                         break;
-                    case 'dislike':
-                        $boardReaction->update(['type' => 'like']);
+                case 'bookmark':
+                    
+                    $this->handleBookmark($existingReaction, $user, $board_id);
                         break;
-                }
-            } else {
-                $boardReaction = new BoardReaction();
-                $boardReaction->user_id = $user->id;
-                $boardReaction->board_id = $board_id;
-                $boardReaction->type = 'like';
-                $boardReaction->save();
             }
 
             $data = [
-                'likeCnt' => BoardReaction::where('board_id',$board_id)->where('type','like')->count()
+                'likeCnt' => BoardReaction::where('board_id',$board_id)->where('type','like')->count(),
+                'bookmarkCnt' => BoardReaction::where('board_id',$board_id)->where('type','bookmark')->count()
             ];
+            
             $data = array_map(function ($data){
                 return ($data === 0) ? '' : $data;
             }, $data);
 
             DB::commit();
-
-            
     
             return response()->json([
                 'success' => true, 
@@ -246,6 +242,45 @@ class BoardController extends Controller
                 'success' => false, 
                 'message' => 'An error occurred'
             ], 500);
+        }
+    }
+
+    private function handleLike($existingReaction, $user, $board_id) {
+        if ($existingReaction) {
+            switch ($existingReaction->type) {
+                case 'like':
+                    $existingReaction->delete();
+                    break;
+                case 'bookmark':
+                    $existingReaction->update(['type' => 'like']);
+                    break;
+            }
+        } else {
+            $boardReaction = new BoardReaction();
+            $boardReaction->user_id = $user->id;
+            $boardReaction->board_id = $board_id;
+            $boardReaction->type = 'like';
+            $boardReaction->save();
+        }
+    }
+    private function handleBookmark($existingReaction, $user, $board_id) {
+        
+        if ($existingReaction) {
+            
+            switch ($existingReaction->type) {
+                case 'like':
+                    $existingReaction->update(['type' => 'bookmark']);
+                    break;
+                case 'bookmark':
+                    $existingReaction->delete();
+                    break;
+            }
+        } else {
+            $boardReaction = new BoardReaction();
+            $boardReaction->user_id = $user->id;
+            $boardReaction->board_id = $board_id;
+            $boardReaction->type = 'bookmark';
+            $boardReaction->save();
         }
     }
 }
