@@ -130,7 +130,7 @@ class BoardController extends Controller
     }
 
     public function edit($board_id, Request $request){
-        $board = Board::all();
+        $board = Board::find($board_id);
         if ($request->user()->cannot('update', $board)) {
             abort(403, '죄송합니다. 글을 수정할 권한이 없습니다.');
         }
@@ -169,10 +169,15 @@ class BoardController extends Controller
 
     }
     public function destroy($board_id){
-
+        $user = Auth::user();
+        $board = Board::find($board_id);
+        if ($user->cannot('delete', $board)) {
+            abort(403, '죄송합니다. 글을 삭제할 권한이 없습니다.');
+        }
+        
         try{
 
-            $user = Auth::user();
+            
             $board = Board::findOrFail($board_id);
 
 
@@ -204,21 +209,21 @@ class BoardController extends Controller
             
             $user = User::find($request->user_id);
             $type = $request->input('type');
-            
+
             $existingReaction = BoardReaction::where('user_id', $user->id)
                 ->where('board_id', $board_id)
                 ->first();
             
             switch($type){
-                    case 'like':
+                case 'like':
                     $this->handleLike($existingReaction, $user, $board_id);
-                        break;
+                    break;
                 case 'bookmark':
                     
                     $this->handleBookmark($existingReaction, $user, $board_id);
-                        break;
+                    break;
             }
-
+            
             $data = [
                 'likeCnt' => BoardReaction::where('board_id',$board_id)->where('type','like')->count(),
                 'bookmarkCnt' => BoardReaction::where('board_id',$board_id)->where('type','bookmark')->count()
@@ -229,7 +234,7 @@ class BoardController extends Controller
             }, $data);
 
             DB::commit();
-    
+
             return response()->json([
                 'success' => true, 
                 'data' => $data,
