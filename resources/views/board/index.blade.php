@@ -1,119 +1,55 @@
-@extends('layouts.app')
-
+@extends('layouts.app') 
 @section('section')
-<style>
-        /* 게시판 스타일링 */
-        section {
-            margin: 20px 0;
-        }
+<section class="py-5">
+    <div class="container">
+        <h1>게시판</h1>
+    </div>
+</section>
 
-        form {
-            margin-bottom: 20px;
-        }
-
-        select, input {
-            padding: 8px;
-            margin-right: 10px;
-        }
-
-        button {
-            padding: 8px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        div > a {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        a {
-            color: #333;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-    </style>
-    <section>
-        <div>
-            게시판
-        </div>
-    </section>
-    <form action="{{ route('board.index') }}" method="GET" id="search_form">
-        <div>
-            <select name="filter">
-                <option value="title" {{ $filter === 'title' ? 'selected' : null }}>제목</option>
-                <option value="content" {{ $filter === 'contents' ? 'selected' : null }}>내용</option>
-                <option value="writer" {{ $filter === 'writer' ? 'selected' : null }}>작성자</option>
-            </select>
-            <div>
-                <input 
-                    type="text"
-                    id=""
-                    name="searchTitle"
-                    placeholder="검색어를 입력하세요"
-                    value="{{ $searchTitle }}"    
-                    />
-                <button type="submit">
-                    <span>검색</span>
-                </button>
+<form action="{{ route('board.index') }}" method="GET" id="search_form" class="mb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <select name="filter" class="form-select">
+                    <option value="title" {{ $filter === 'title' ? 'selected' : null }}>제목</option>
+                    <option value="content" {{ $filter === 'contents' ? 'selected' : null }}>내용</option>
+                    <option value="writer" {{ $filter === 'writer' ? 'selected' : null }}>작성자</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="" name="searchTitle" placeholder="검색어를 입력하세요" value="{{ $searchTitle }}" class="form-control">
+                    <button type="submit" class="btn btn-primary">
+                        <span>검색</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </form>
-    <!-- 게시물 -->
-    <div>
-        <h3><span>{{ $countCollection }}</span>개</h3>
-        <a href="/board/create">
-            글쓰기
-        </a>
     </div>
-    <table>
+</form>
+
+<div class="container mb-4">
+    <div class="row justify-content-between">
+        <div class="text-start">
+            <h6>게시글 <span>{{ $countCollection }}</span>개</h6>
+        </div>
+        <div class="text-end">
+            <a href="/board/create" class="btn btn-primary">글쓰기</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <table class="table">
         <caption></caption>
-        <colgroup>
-            <col style="width: 50%"/>
-            <col style="width: 11%"/>
-            <col style="width: 11%"/>
-            <col style="width: 8.333%"/>
-            <col style="width: 10%"/>
-        </colgroup>
         <thead>
-            <th>제목</th>
-            <th>작성자</th>
-            <th>작성일자</th>
-            <th>조회</th>
-            <th>공감</th>
+            <tr>
+            <th scope="col" style="width: 30%;">제목</th>
+            <th scope="col" style="width: 20%;">작성자</th>
+            <th scope="col" style="width: 20%;">작성일자</th>
+            <th scope="col" style="width: 15%;">조회</th>
+            <th scope="col" style="width: 15%;">북마크</th>
+            </tr>
         </thead>
         <tbody>
             @if ($countCollection > 0)
@@ -128,17 +64,18 @@
                         <td>{{ $item['uname'] }}</td>
                         <td>{{ $item['formatted_created_at'] }}</td>
                         <td>{{ $item['view_cnt'] }}</td>
-                        <td></td>
+                        <td>{{ $item->boardBookmarkReactions()->count() }}</td>
                     </tr>
                 @endforeach
             @else
                 <!-- 게시물이 없을 경우 -->
                 <tr>
-                    <td다>
+                    <td colspan="5">
                         등록된 게시물이 없습니다
-                    </td다
+                    </td>
                 </tr>
             @endif
         </tbody>
     </table>
+</div>
 @stop
