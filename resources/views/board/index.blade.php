@@ -71,12 +71,12 @@
             게시판
         </div>
     </section>
-    <form action="{{ route('board_index') }}" method="GET" id="search_form">
+    <form action="{{ route('board.index') }}" method="GET" id="search_form">
         <div>
             <select name="filter">
-                <option value="titleContent" {{ $filter === 'titleContents' ? 'selected' : null }}>제목 + 내용</option>
+                <option value="title" {{ $filter === 'title' ? 'selected' : null }}>제목</option>
                 <option value="content" {{ $filter === 'contents' ? 'selected' : null }}>내용</option>
-                <option value="actor" {{ $filter === 'actor' ? 'selected' : null }}>작성자</option>
+                <option value="writer" {{ $filter === 'writer' ? 'selected' : null }}>작성자</option>
             </select>
             <div>
                 <input 
@@ -126,7 +126,7 @@
                             </a>
                         </td>
                         <td>{{ $item['uname'] }}</td>
-                        <td>{{ $item['created_at'] }}</td>
+                        <td>{{ $item['formatted_created_at'] }}</td>
                         <td>{{ $item['view_cnt'] }}</td>
                         <td></td>
                     </tr>

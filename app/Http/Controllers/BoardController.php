@@ -10,56 +10,92 @@ use App\Models\BoardReaction;
 use Auth;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Carbon\Carbon;
 
 class BoardController extends Controller
 {
     public function index(Request $request){
 
-        $user = Auth::user();
+        try{
 
-        $table_data = Board::leftJoin('users as u', 'boards.user_id','=','u.id')
-        ->select('boards.*','u.id as u_id','u.name as uname')
-        ->orderBy('boards.created_at','desc');
-        
-        $searchTitle = $request->get('searchTitle');
-        $filter = $request->get('filter');
+            $user = Auth::user();
+            $table_data = Board::leftJoin('users as u', 'boards.user_id','=','u.id')
+            ->select('boards.*','u.id as u_id','u.name as uname')
+            ->orderBy('boards.created_at','desc');
 
-        if($searchTitle){
-            switch($request->filter){
-                case 'titleContent':
-                    $table_data = $table_data
-                        ->where('boards.content', 'like','%'.$searchTitle.'%')
-                        ->orwhere('boards.title', 'like','%'.$searchTitle.'%');
-                    break;
-                case 'content':
-                    $table_data = $table_data
-                        ->where('boards.content', 'like','%'.$searchTitle.'%');
-                    break;
-                case 'actor':
-                    $table_data = $table_data
-                        ->where('u.name', 'like','%'.$searchTitle.'%');
-                    break;
+            $searchTitle = $request->get('searchTitle');
+            $filter = $request->get('filter');
+
+            if ($searchTitle) {
+                $table_data = $this->searchTableData($table_data, $request);
             }
+
+            $newCollection = $table_data->get()->map(function ($item) {
+                $created_at = Carbon::parse($item['created_at']);
+                
+                // 24시간 이전인 경우
+                $item['formatted_created_at'] = ($created_at->diffInHours(now()) < 24)
+                    ? $created_at->diffForHumans()
+                    : $created_at->format('Y-m-d');
+                
+                return $item;
+            });
+            $countCollection = count($newCollection);
+            return view('board.index', compact('user','searchTitle','filter','countCollection','newCollection'));
+
+        } catch (\Exception $e){
+
+            return response([
+                'status' => 'error',
+                'message' => '에러가 발생했습니다',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+    private function searchTableData($table_data, $request){
+        $searchTitle = $request->get('searchTitle');
+
+        switch($request->filter){
+            case 'title':
+                $table_data = $table_data
+                    ->where('boards.title', 'like','%'.$searchTitle.'%');
+                break;
+            case 'content':
+                $table_data = $table_data
+                    ->where('boards.content', 'like','%'.$searchTitle.'%');
+                break;
+            case 'writer':
+                $table_data = $table_data
+                    ->where('u.name', 'like','%'.$searchTitle.'%');
+                break;
         }
 
-        $table_data = $table_data->get();
-        $filteredCollection = collect($table_data);
-        $filteredArray = $filteredCollection->all();
-        $countCollection = count($filteredCollection);
-        $newCollection = collect($filteredArray);
+        return $table_data;
 
-        return view('board.index', compact('user','searchTitle','filter','countCollection','newCollection'));
     }
+
     public function create(){
-        $user = Auth::user();
-        return view('board.create',compact('user'));
+        try{
+
+            $user = Auth::user();
+            return view('board.create',compact('user'));
+
+        } catch (\Exception $e){
+
+            return response([
+                'status' => 'error',
+                'message' => '에러가 발생했습니다',
+                'error' => $e->getMessage()
+            ]);
+        }
+        
     }
 
     public function store(Request $request){
 
-        $user = Auth::user();
+        
         try{
-
+            $user = Auth::user();
             $request->validate([
                 'title' => 'required|max:255',
                 'editordata' => 'required',
@@ -73,7 +109,7 @@ class BoardController extends Controller
             $board->save();
             DB::commit();
 
-            return redirect() -> route('board_index');
+            return redirect() -> route('board.index');
         } catch (\Exception $e){
             DB::rollBack();
             return response([
@@ -144,6 +180,11 @@ class BoardController extends Controller
 
         try{
 
+            $board = Board::find($board_id);
+            if ($request->user()->cannot('update', $board)) {
+                abort(403, '죄송합니다. 글을 수정할 권한이 없습니다.');
+            }
+            
             $request->validate([
                 'title' => 'required|max:255',
                 'content' => 'required',
@@ -156,7 +197,7 @@ class BoardController extends Controller
             $board->save();
             DB::commit();
 
-            return redirect()->route('board_show', ['board_id' => $board->id]);
+            return redirect()->route('board_show', ['board_id' => $board_id]);
 
         } catch (\Exception $e){
 
@@ -177,7 +218,6 @@ class BoardController extends Controller
         
         try{
 
-            
             $board = Board::findOrFail($board_id);
 
 
