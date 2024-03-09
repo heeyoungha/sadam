@@ -13,8 +13,11 @@ class BookmarkController extends Controller
 {
     
     public function index(Request $request) {
-
+        
         $user = Auth::user();
+        if ($request->user()->cannot('view', Bookmark::class)) {
+            abort(403, '죄송합니다. 조회 권한이 없습니다.');
+        }
         
         $query = Board::leftJoin('users as u', 'boards.user_id', '=', 'u.id')
         ->select('boards.*', 'u.id as u_id', 'u.name as uname')
