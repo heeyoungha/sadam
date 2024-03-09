@@ -157,14 +157,19 @@
         <p>{{ $board->created_at }}</p>
     </div>
     <div class="actions">
+        @can('delete', $board)
         <form action="/board/{{ $board->id }}" method="post">
             @csrf
             @method('DELETE')
             <button type="submit" id="deleteButton">삭제하기</button>
         </form>
+        @endcan
+        @can('update', $board)
         <a href="{{ route('board_edit', ['board_id' => $board->id]) }}">
             <button id="editButton">수정하기</button>
         </a>
+        @endcan
+
     </div>
 </div>
 
@@ -289,22 +294,5 @@
     }
 
     var isPostAuthor = "{{$is_post_author}}";
-    document.addEventListener("DOMContentLoaded", function() {
-        // 삭제하기 버튼 제어
-        var deleteButton = document.getElementById("deleteButton");
-        if (isPostAuthor === 'active') {
-            deleteButton.style.display = 'flex';
-        } else {
-            deleteButton.style.display = 'none';
-        }
-
-        // 수정하기 버튼 제어
-        var editButton = document.getElementById("editButton");
-        if (isPostAuthor === 'active') {
-            editButton.style.display = 'flex';
-        } else {
-            editButton.style.display = 'none';
-        }
-    });
 </script>
 @stop
