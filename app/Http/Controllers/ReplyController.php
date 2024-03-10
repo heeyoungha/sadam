@@ -6,7 +6,7 @@ use Illuminate\support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Reply;
-use App\Models\replyReaction;
+use App\Models\ReplyReaction;
 use Auth;
 
 class ReplyController extends Controller
@@ -58,17 +58,13 @@ class ReplyController extends Controller
                 $replyReaction->save();
             }
 
-            $data = [
-                'likeCnt' => ReplyReaction::where('reply_id',$reply_id)->where('type','like')->count()
-            ];
-            $data = array_map(function ($data){
-                return ($data === 0) ? '' : $data;
-            }, $data);
+            $likeCnt = ReplyReaction::where('reply_id',$reply_id)->where('type','like')->count();
+            $likeCnt = $likeCnt === 0 ? '' : $likeCnt;
             DB::commit();
 
             return response()->json([
                 'success' => true, 
-                'data' => $data,
+                'likeCnt' => $likeCnt,
                 'message' => 'Board reaction updated successfully'
             ]);
             

@@ -89,7 +89,7 @@
 
 <!-- 이전글/다음글 -->
 <!-- 목록으로 -->
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
 <script>
         $(document).ready(function() {
         const csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -108,8 +108,8 @@
                     type: 'bookmark'
                 },
                 success: function(response) {
-                    document.querySelector('#boardBookmarkCnt').innerText = response.data.bookmarkCnt;
-                    document.querySelector('#boardLikeCnt').innerText = response.data.likeCnt;
+                    document.querySelector('#boardBookmarkCnt').innerText = response.bookmarkCnt;
+                    document.querySelector('#boardLikeCnt').innerText = response.likeCnt;
                 },
                 error: function(error) {
                     console.log('Error:', error);
@@ -134,7 +134,7 @@
                     user_id: userId,
                 },
                 success: function(response) {
-                    self.find(".replyReactionBtn").text(response.data.likeCnt);
+                    self.find(".replyReactionBtn").text(response.likeCnt);
                 },
                 error: function(error) {
                     console.log('Error:', error);

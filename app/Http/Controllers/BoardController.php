@@ -280,20 +280,17 @@ class BoardController extends Controller
                     break;
             }
             
-            $data = [
-                'likeCnt' => BoardReaction::where('board_id',$board_id)->where('type','like')->count(),
-                'bookmarkCnt' => BoardReaction::where('board_id',$board_id)->where('type','bookmark')->count()
-            ];
-            
-            $data = array_map(function ($data){
-                return ($data === 0) ? '' : $data;
-            }, $data);
+            $likeCnt = BoardReaction::where('board_id',$board_id)->where('type','like')->count();
+            $likeCnt = $likeCnt === 0 ? '' : $likeCnt;
+            $bookmarkCnt = BoardReaction::where('board_id',$board_id)->where('type','bookmark')->count();
+            $bookmarkCnt = $bookmarkCnt === 0 ? '' : $bookmarkCnt;
 
             DB::commit();
 
             return response()->json([
                 'success' => true, 
-                'data' => $data,
+                'likeCnt' => $likeCnt,
+                'bookmarkCnt' => $bookmarkCnt,
                 'message' => 'Board reaction updated successfully'
             ]);
 
