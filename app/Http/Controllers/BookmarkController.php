@@ -9,6 +9,9 @@ use Illuminate\Database\Query\Builder;
 use Auth;
 use App\Policies\BoardPolicy;
 use Carbon\Carbon;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class BookmarkController extends Controller
 {
@@ -49,8 +52,10 @@ class BookmarkController extends Controller
                 
                 return $item;
             });
-            $countCollection = count($newCollection);
-
+            
+            $newCollection = $this->paginate($newCollection);
+            $newCollection->withPath('/bookmark');
+            $countCollection = $newCollection->total();
             return view('bookmark.index', compact('user','searchTitle','countCollection','newCollection'));
 
         } catch (\Exception $e){
@@ -62,5 +67,14 @@ class BookmarkController extends Controller
             ]);
         }
         
+    }
+    private function paginate($items, $perPage = 5, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), 
+                            $perPage, $page, $options);
     }
 }

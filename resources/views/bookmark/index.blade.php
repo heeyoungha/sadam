@@ -4,7 +4,7 @@
 
 <section class="mb-4">
     <div class="container">
-        <h2>게시판</h2>
+        <h2>북마크 게시글</h2>
     </div>
 </section>
 
@@ -71,4 +71,16 @@
         </tbody>
     </table>
 </div>
+<div style="text-align: center;">
+    @if ($newCollection->currentPage() > 1)
+        <a href="{{ $newCollection->previousPageUrl() }}"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+    @endif
+    @for($i = 1; $i <= $newCollection->lastPage(); $i++)
+        <a href="{{$newCollection->url($i)}}">{{$i}}</a>
+    @endfor
+    @if ($newCollection->currentPage() < $newCollection->lastPage() )
+        <a href="{{$newCollection->nextPageUrl()}}"><i class="fa fa-chevron-right" aria-hidden="true"></i></a>
+    @endif
+</div>
+
 @stop

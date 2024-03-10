@@ -11,6 +11,7 @@ use Auth;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class BoardController extends Controller
 {
@@ -40,8 +41,12 @@ class BoardController extends Controller
                 
                 return $item;
             });
-            $countCollection = count($newCollection);
-            return view('board.index', compact('user','searchTitle','filter','countCollection','newCollection'));
+
+            $newCollection = $this->paginate($newCollection);
+            $newCollection->withPath('/board');
+            $countCollection = $newCollection->total();
+            
+            return view('board.index', compact('user','searchTitle','countCollection','newCollection','filter'));
 
         } catch (\Exception $e){
 
@@ -73,6 +78,16 @@ class BoardController extends Controller
         return $table_data;
 
     }
+    private function paginate($items, $perPage = 5, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), 
+                            $perPage, $page, $options);
+    }
+
 
     public function create(){
         try{
