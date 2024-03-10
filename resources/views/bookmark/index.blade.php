@@ -10,13 +10,13 @@
 
 <form action="{{ route('bookmark.index') }}" method="GET" id="search_form" class="mb-4">
     <div class="container">
-    <div class="row justify-content-center">
+        <div class="row justify-content-center">
             <div class="d-flex align-items-center">
                 작성자
             </div>
             <div class="">
                 <div class="input-group">
-                    <input type="text" class="form-control" name="searchTitle" placeholder="작성자를 입력하세요" value="{{ $searchTitle }}">
+                    <input type="text" class="form-control" name="sn" placeholder="작성자를 입력하세요" value="{{ $sn }}">
                     <button type="submit" class="btn btn-primary">검색</button>
                 </div>
             </div>

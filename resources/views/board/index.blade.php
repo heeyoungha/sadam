@@ -7,25 +7,18 @@
 </section>
 
 <form action="{{ route('board.index') }}" method="GET" id="search_form" class="mb-4">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                <select name="filter" class="form-select">
-                    <option value="title" {{ $filter === 'title' ? 'selected' : null }}>제목</option>
-                    <option value="content" {{ $filter === 'contents' ? 'selected' : null }}>내용</option>
-                    <option value="writer" {{ $filter === 'writer' ? 'selected' : null }}>작성자</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <div class="input-group">
-                    <input type="text" id="" name="searchTitle" placeholder="검색어를 입력하세요" value="{{ $searchTitle }}" class="form-control">
-                    <button type="submit" class="btn btn-primary">
-                        <span>검색</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div class="container mt-3 d-flex gap-2 w-50" style="height: 38px;">
+        <select name="sf" class="form-select w-25" id="sf">
+            <option value="{{ $sfs[0] }}" {{ $sf === $sfs[0] ? 'selected' : null }}>제목</option>
+            <option value="{{ $sfs[1] }}" {{ $sf === $sfs[1] ? 'selected' : null }}>내용</option>
+            <option value="{{ $sfs[2] }}" {{ $sf === $sfs[2] ? 'selected' : null }}>작성자</option>
+        </select>  
+        <input type="text" class="form-control w-50" id="sn" style="height: 38px;" name="sn" placeholder="검색어를 입력하세요" value="{{ $sn }}" class="form-control">
+        <button type="submit" class="btn btn-primary" id="btn_search" style="height: 38px;">
+            <span>검색</span>
+        </button>
     </div>
+
 </form>
 
 <div class="container mb-4">
@@ -41,7 +34,6 @@
 
 <div class="container">
     <table class="table">
-        <caption></caption>
         <thead>
             <tr>
             <th scope="col" style="width: 30%;">제목</th>
@@ -92,4 +84,27 @@
         <a href="{{$newCollection->nextPageUrl()}}"><i class="fa fa-chevron-right" aria-hidden="true"></i></a>
     @endif
 </div>
+
+<script>
+    function getUrlParams(){
+        const params = {};
+
+        window.location.search.replace(/[?&]+([^=&])=([^&]*)/gi,
+            function(str, key, value){
+                params[key] = value;
+            }
+        );
+    }
+    const btn_search = document.querySelector("#btn_search")
+    btn_search.addEventListener("click", () => {
+        const sn = document.querySelector("#sn")
+        const sf = document.querySelector("#sf")
+        if(sn.value == ''){
+            alert('검색어를 입력해 주세요')
+            sn.focus()
+            return false
+        }
+        self.location.href='./board?'+'sn=' + sn.value + '&sf=' +sf.value
+    })
+</script>
 @stop

@@ -24,10 +24,11 @@ class BoardController extends Controller
             ->select('boards.*','u.id as u_id','u.name as uname')
             ->orderBy('boards.created_at','desc');
 
-            $searchTitle = $request->get('searchTitle');
-            $filter = $request->get('filter');
+            $sn = $request->get('sn');
+            $sf = $request->get('sf');
+            $sfs = ['title', 'content', 'writer'];
 
-            if ($searchTitle) {
+            if ($sn) {
                 $table_data = $this->searchTableData($table_data, $request);
             }
 
@@ -46,7 +47,7 @@ class BoardController extends Controller
             $newCollection->withPath('/board');
             $countCollection = $newCollection->total();
             
-            return view('board.index', compact('user','searchTitle','countCollection','newCollection','filter'));
+            return view('board.index', compact('user','sn','sf','sfs','countCollection','newCollection'));
 
         } catch (\Exception $e){
 
@@ -57,21 +58,21 @@ class BoardController extends Controller
             ]);
         }
     }
-    private function searchTableData($table_data, $request){
-        $searchTitle = $request->get('searchTitle');
+    private function searchTableData($table_data, $request, $sn, $sf, $sfs){
 
-        switch($request->filter){
-            case 'title':
+        switch($request->sf){
+            
+            case $sfs[0] :
                 $table_data = $table_data
-                    ->where('boards.title', 'like','%'.$searchTitle.'%');
+                    ->where('boards.'.$sf, 'like','%'.$sn.'%');
                 break;
-            case 'content':
+            case $sfs[1] :
                 $table_data = $table_data
-                    ->where('boards.content', 'like','%'.$searchTitle.'%');
+                    ->where('boards.'.$sf, 'like','%'.$sn.'%');
                 break;
-            case 'writer':
+            case $sfs[2] :
                 $table_data = $table_data
-                    ->where('u.name', 'like','%'.$searchTitle.'%');
+                    ->where('u.name', 'like','%'.$sn.'%');
                 break;
         }
 

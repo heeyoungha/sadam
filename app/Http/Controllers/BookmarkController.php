@@ -36,9 +36,9 @@ class BookmarkController extends Controller
             ->orderByDesc('reaction_count')
             ->orderByDesc('boards.created_at');
 
-            $searchTitle = $request->get('searchTitle');
-            if ($searchTitle) {
-                $query->where('u.name', 'like', "%$searchTitle%");
+            $sn = $request->get('sn');
+            if ($sn) {
+                $query->where('u.name', 'like', "%$sn%");
             }
 
 
@@ -56,7 +56,7 @@ class BookmarkController extends Controller
             $newCollection = $this->paginate($newCollection);
             $newCollection->withPath('/bookmark');
             $countCollection = $newCollection->total();
-            return view('bookmark.index', compact('user','searchTitle','countCollection','newCollection'));
+            return view('bookmark.index', compact('user','sn','countCollection','newCollection'));
 
         } catch (\Exception $e){
 
